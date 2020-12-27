@@ -635,7 +635,7 @@ ULONG DeviceFPGA_UDP_FT60x_FT_ReadPipe(HANDLE ftHandle, UCHAR ucPipeID, PUCHAR p
                     if(cSleep < 5) {
                         SwitchToThread();
                     } else {
-                        usleep(100);
+                        usleephot(100);
                     }
                     continue;
                 }
@@ -1585,7 +1585,7 @@ BOOL DeviceFPGA_TxTlp(_In_ PLC_CONTEXT ctxLC, _In_ PDEVICE_CONTEXT_FPGA ctx, _In
             status = ctx->dev.pfnFT_WritePipe(ctx->dev.hFTDI, 0x02, ctx->txbuf.pb, ctx->txbuf.cb, &cbTxed, NULL);
         }
         ctx->txbuf.cb = 0;
-        usleep(ctx->perf.DELAY_WRITE);
+        usleephot(ctx->perf.DELAY_WRITE);
         return (0 == status);
     }
     return TRUE;
@@ -1667,7 +1667,7 @@ VOID DeviceFPGA_RxTlpAsynchronous(_In_ PLC_CONTEXT ctxLC, _In_ PDEVICE_CONTEXT_F
     PTLP_CALLBACK_BUF_MRd_SCATTER prxbuf = ctx->pMRdBufferX;
     pbBuffer = ctx->rxbuf.pb;
     cbReadMax = min(0x10000, max(0x1000, (cbBytesToRead - prxbuf->cbReadTotal) << 1));
-    usleep(25);
+    usleephot(25);
     status = ctx->dev.pfnFT_ReadPipe(ctx->dev.hFTDI, 0x82, pbBuffer, cbReadMax, &cbRead, NULL);
     if(status && (status != FT_IO_PENDING)) { return; }
     while(TRUE) {
@@ -1819,7 +1819,7 @@ VOID DeviceFPGA_ReadScatter_Impl(_In_ PLC_CONTEXT ctxLC, _In_ DWORD cMEMs, _Inou
                 if(ctx->perf.RX_FLUSH_LIMIT && (cbFlush >= (ctx->fAlgorithmReadTiny ? 0x1000 : ctx->perf.RX_FLUSH_LIMIT))) {
                     // flush is only used by the SP605.
                     DeviceFPGA_TxTlp(ctxLC, ctx, (PBYTE)tx, is32 ? 12 : 16, FALSE, TRUE);
-                    usleep(ctx->perf.DELAY_WRITE);
+                    usleephot(ctx->perf.DELAY_WRITE);
                     cbFlush = 0;
                 } else {
                     DeviceFPGA_TxTlp(ctxLC, ctx, (PBYTE)tx, is32 ? 12 : 16, FALSE, FALSE);
@@ -1841,7 +1841,7 @@ VOID DeviceFPGA_ReadScatter_Impl(_In_ PLC_CONTEXT ctxLC, _In_ DWORD cMEMs, _Inou
             if(ctx->async.fEnabled) {
                 DeviceFPGA_RxTlpAsynchronous(ctxLC, ctx, cbTotalInCycle);
             } else {
-                usleep(ctx->perf.DELAY_READ);
+                usleephot(ctx->perf.DELAY_READ);
                 DeviceFPGA_RxTlpSynchronous(ctxLC, ctx, cbTotalInCycle);
             }
         }
@@ -1928,13 +1928,13 @@ VOID DeviceFPGA_ProbeMEM_Impl(_In_ PLC_CONTEXT ctxLC, _In_ QWORD qwAddr, _In_ DW
         isFlush = (++cTxTlp % 24 == 0);
         if(isFlush) {
             DeviceFPGA_TxTlp(ctxLC, ctx, (PBYTE)tx, is32 ? 12 : 16, FALSE, TRUE);
-            usleep(ctx->perf.DELAY_PROBE_WRITE);
+            usleephot(ctx->perf.DELAY_PROBE_WRITE);
         } else {
             DeviceFPGA_TxTlp(ctxLC, ctx, (PBYTE)tx, is32 ? 12 : 16, FALSE, FALSE);
         }
     }
     DeviceFPGA_TxTlp(ctxLC, ctx, NULL, 0, TRUE, TRUE);
-    usleep(ctx->perf.DELAY_PROBE_READ);
+    usleephot(ctx->perf.DELAY_PROBE_READ);
     DeviceFPGA_RxTlpSynchronous(ctxLC, ctx, 0);
     ctx->hRxTlpCallbackFn = NULL;
     ctx->pMRdBufferX = NULL;

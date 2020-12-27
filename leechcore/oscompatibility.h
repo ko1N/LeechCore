@@ -20,7 +20,7 @@ typedef unsigned __int64                    QWORD, *PQWORD;
 #pragma warning( disable : 4477)
 
 #define LC_LIBRARY_FILETYPE                 ".dll"
-VOID usleep(_In_ DWORD us);
+VOID usleephot(_In_ DWORD us);
 
 #endif /* _WIN32 */
 #ifdef LINUX
@@ -43,6 +43,7 @@ VOID usleep(_In_ DWORD us);
 #include <arpa/inet.h>
 
 #define LC_LIBRARY_FILETYPE                 ".so"
+VOID usleephot(_In_ DWORD us);
 
 typedef void                                VOID, *PVOID;
 typedef void                                *HANDLE, **PHANDLE;
@@ -133,7 +134,7 @@ typedef struct tdEXCEPTION_RECORD64         { CHAR sz[152]; } EXCEPTION_RECORD64
 #define SwitchToThread()                    (sched_yield())
 #define ExitThread(dwExitCode)              (pthread_exit(dwExitCode))
 #define ExitProcess(c)                      (exit(c ? EXIT_SUCCESS : EXIT_FAILURE))
-#define Sleep(dwMilliseconds)               (usleep(1000*dwMilliseconds))
+#define Sleep(dwMilliseconds)               (usleephot(1000*dwMilliseconds))
 #define fopen_s(ppFile, szFile, szAttr)     ((*ppFile = fopen(szFile, szAttr)) ? 0 : 1)
 #define GetModuleFileNameA(m, f, l)         (readlink("/proc/self/exe", f, l))
 #define ZeroMemory(pb, cb)                  (memset(pb, 0, cb))

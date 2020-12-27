@@ -7,7 +7,7 @@
 
 #include "oscompatibility.h"
 
-VOID usleep(_In_ DWORD us)
+VOID usleephot(_In_ DWORD us)
 {
     QWORD tmFreq, tmStart, tmNow, tmThreshold;
     if(us == 0) { return; }
@@ -45,6 +45,19 @@ BOOL Util_GetPathExe(_Out_writes_(MAX_PATH) PCHAR szPath)
 #include <sys/ioctl.h>
 
 #define INTERNAL_HANDLE_TYPE_THREAD        0xdeadbeeffedfed01
+
+VOID usleephot(_In_ DWORD us)
+{
+    struct timespec time_start, time_now;
+    QWORD threshold;
+
+    clock_gettime(CLOCK_MONOTONIC_RAW, &time_start);
+    threshold = us * 1000;
+    do {
+        clock_gettime(CLOCK_MONOTONIC_RAW, &time_now);
+    }
+    while ((time_now.tv_nsec - time_start.tv_nsec) < threshold);
+}
 
 typedef struct tdINTERNAL_HANDLE {
     QWORD type;
